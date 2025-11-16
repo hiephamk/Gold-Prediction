@@ -90,7 +90,7 @@ def predict_future_prices(request):
 
         PredictedDataModel = interval_model_map[interval]
 
-        model_path = f'/Users/hiephuynh/Documents/myapps/Doctor_AI/backend/FxPred/xauusd_model_best_{interval}.pth'
+        model_path = f'/Users/hiephuynh/Documents/myapps/Gold-Prediction/backend/FxPred/xauusd_model_best_{interval}.pth'
         df = fetch_gold_price(interval)
 
         if df is None or df.empty:
