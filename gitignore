@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.log
+
+# Virtual environments
+my-venv/
+env/
+venv/
+ENV/
+
+# PyTorch/ML model files
+*.pth
+*.pt
+*.ckpt
+*.bin
+*.safetensors
+*.onnx
+*.pb
+debug.log
+*.log
+
+# Large data files
+*.tar
+*.tar.gz
+*.zip
+*.h5
+*.hdf5
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
