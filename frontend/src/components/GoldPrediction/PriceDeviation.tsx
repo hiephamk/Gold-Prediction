@@ -69,7 +69,9 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
         .filter((d): d is ActualPrice => {
           const ts = new Date(d.Date).getTime();
           return !isNaN(ts) && !isNaN(d.Open) && !isNaN(d.High) && !isNaN(d.Low) && !isNaN(d.Close);
-        });
+        })
+        // Sort by date ascending (oldest first)
+        .sort((a, b) => new Date(a.Date).getTime() - new Date(b.Date).getTime());
 
       setActualPrice(valid);
     } catch (err: any) {
@@ -83,13 +85,16 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
     try {
       const { data } = await axios.get(url);
 
-      const normalized = (data ?? []).map((p: any) => ({
-        date: toISO(p.date),
-        open: Number(p.open),
-        high: Number(p.high),
-        low: Number(p.low),
-        close: Number(p.close),
-      }));
+      const normalized = (data ?? [])
+        .map((p: any) => ({
+          date: toISO(p.date),
+          open: Number(p.open),
+          high: Number(p.high),
+          low: Number(p.low),
+          close: Number(p.close),
+        }))
+        // Sort by date ascending (oldest first)
+        .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
       setPredictedData(normalized);
     } catch (err: any) {
@@ -123,6 +128,7 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
         if (predictedValue !== undefined && !isNaN(actual[field]) && !isNaN(predictedValue)) {
           return {
             date: actual.Date,
+            timestamp: timestamp, // Add timestamp for sorting
             field: field,
             actual: actual[field],
             predicted: predictedValue,
@@ -132,7 +138,9 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
         }
         return null;
       })
-      .filter((d): d is NonNullable<typeof d> => d !== null);
+      .filter((d): d is NonNullable<typeof d> => d !== null)
+      // Sort by timestamp to ensure chronological order
+      .sort((a, b) => a.timestamp - b.timestamp);
 
     return deviations;
   };
@@ -142,10 +150,19 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
   const lowDeviations = deviationFunction("Low");
   const closeDeviations = deviationFunction("Close");
 
-  // Prepare chart data for each field
+  // Prepare chart data for each field - now properly sorted
   const prepareChartData = (deviations: ReturnType<typeof deviationFunction>, limit = 20) => {
-    return deviations.slice(-limit).map(dev => ({
-      date: new Date(dev.date).toLocaleDateString(),
+    // Get the last 'limit' items (most recent dates)
+    const recentData = deviations.slice(-limit);
+    
+    return recentData.map(dev => ({
+      date: new Date(dev.date).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        hour: dev.date.includes('T') ? '2-digit' : undefined,
+        minute: dev.date.includes('T') ? '2-digit' : undefined
+      }),
+      fullDate: dev.date, // Keep full date for debugging
       deviation: Math.abs(dev.deviation),
       rawDeviation: dev.deviation,
       actual: dev.actual,
@@ -160,6 +177,7 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
       return (
         <Box bg="white" p={3} border="1px solid #ccc" borderRadius="md" shadow="md">
           <Text fontSize="sm" fontWeight="bold">{data.date}</Text>
+          <Text fontSize="xs" color="gray.600">{data.fullDate}</Text>
           <Text fontSize="sm">Actual: {data.actual.toFixed(5)}</Text>
           <Text fontSize="sm">Predicted: {data.predicted.toFixed(5)}</Text>
           <Text fontSize="sm" fontWeight="bold" color={data.rawDeviation >= 0 ? "green.600" : "red.600"}>
@@ -203,16 +221,46 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
       <Box p={4} bg="blue.50" borderRadius="md" mb={6}>
         <Text fontSize="lg" fontWeight="bold" mb={2}>Summary</Text>
         <Grid templateColumns="repeat(4, 1fr)" gap={4}>
-          <Text>Open: {openDeviations.length} matches</Text>
-          <Text>High: {highDeviations.length} matches</Text>
-          <Text>Low: {lowDeviations.length} matches</Text>
-          <Text>Close: {closeDeviations.length} matches</Text>
+          <Box>
+            <Text fontWeight="semibold">Open: {openDeviations.length} matches</Text>
+            {openDeviations.length > 0 && (
+              <Text fontSize="xs" color="gray.600">
+                Latest: {new Date(openDeviations[openDeviations.length - 1].date).toLocaleString()}
+              </Text>
+            )}
+          </Box>
+          <Box>
+            <Text fontWeight="semibold">High: {highDeviations.length} matches</Text>
+            {highDeviations.length > 0 && (
+              <Text fontSize="xs" color="gray.600">
+                Latest: {new Date(highDeviations[highDeviations.length - 1].date).toLocaleString()}
+              </Text>
+            )}
+          </Box>
+          <Box>
+            <Text fontWeight="semibold">Low: {lowDeviations.length} matches</Text>
+            {lowDeviations.length > 0 && (
+              <Text fontSize="xs" color="gray.600">
+                Latest: {new Date(lowDeviations[lowDeviations.length - 1].date).toLocaleString()}
+              </Text>
+            )}
+          </Box>
+          <Box>
+            <Text fontWeight="semibold">Close: {closeDeviations.length} matches</Text>
+            {closeDeviations.length > 0 && (
+              <Text fontSize="xs" color="gray.600">
+                Latest: {new Date(closeDeviations[closeDeviations.length - 1].date).toLocaleString()}
+              </Text>
+            )}
+          </Box>
         </Grid>
       </Box>
 
       {/* Open Deviations Chart */}
       <Box mb={6} p={4} borderWidth={1} borderRadius="md">
-        <Text fontSize="lg" fontWeight="semibold" mb={4}>Open Price Deviations</Text>
+        <Text fontSize="lg" fontWeight="semibold" mb={4}>
+          Open Price Deviations (Last 20)
+        </Text>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={openChartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -220,8 +268,8 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
               dataKey="date" 
               angle={-45} 
               textAnchor="end" 
-              height={80}
-              fontSize={12}
+              height={100}
+              fontSize={11}
             />
             <YAxis fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
@@ -237,7 +285,9 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
 
       {/* High Deviations Chart */}
       <Box mb={6} p={4} borderWidth={1} borderRadius="md">
-        <Text fontSize="lg" fontWeight="semibold" mb={4}>High Price Deviations</Text>
+        <Text fontSize="lg" fontWeight="semibold" mb={4}>
+          High Price Deviations (Last 20)
+        </Text>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={highChartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -245,8 +295,8 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
               dataKey="date" 
               angle={-45} 
               textAnchor="end" 
-              height={80}
-              fontSize={12}
+              height={100}
+              fontSize={11}
             />
             <YAxis fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
@@ -262,7 +312,9 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
 
       {/* Low Deviations Chart */}
       <Box mb={6} p={4} borderWidth={1} borderRadius="md">
-        <Text fontSize="lg" fontWeight="semibold" mb={4}>Low Price Deviations</Text>
+        <Text fontSize="lg" fontWeight="semibold" mb={4}>
+          Low Price Deviations (Last 20)
+        </Text>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={lowChartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -270,8 +322,8 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
               dataKey="date" 
               angle={-45} 
               textAnchor="end" 
-              height={80}
-              fontSize={12}
+              height={100}
+              fontSize={11}
             />
             <YAxis fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
@@ -287,7 +339,9 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
 
       {/* Close Deviations Chart */}
       <Box mb={6} p={4} borderWidth={1} borderRadius="md">
-        <Text fontSize="lg" fontWeight="semibold" mb={4}>Close Price Deviations</Text>
+        <Text fontSize="lg" fontWeight="semibold" mb={4}>
+          Close Price Deviations (Last 20)
+        </Text>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={closeChartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -295,8 +349,8 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
               dataKey="date" 
               angle={-45} 
               textAnchor="end" 
-              height={80}
-              fontSize={12}
+              height={100}
+              fontSize={11}
             />
             <YAxis fontSize={12} />
             <Tooltip content={<CustomTooltip />} />

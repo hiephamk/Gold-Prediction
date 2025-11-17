@@ -47,6 +47,7 @@ const FxPredictionResult: React.FC<FxActualPredictedDataProps> = ({ interval, })
   const [pip, setPip] = useState<number>(0.01)
   const [highPrice, setHighPrice] = useState<number>(0)
   const [lowPrice, setLowPrice] = useState<number>(0)
+  const [closePrice, setClosePrice] = useState<number>(0)
   const [flag, setFlag] = useState<boolean>(false)
 
   const [series, setSeries] = useState<any[]>([]);
@@ -221,13 +222,13 @@ useEffect(() => {
   return (
     <Box w={"100%"} maxW="100%" my={"20px"}>
       <VStack gap={"10px"} align="stretch">
-        {/* <Button
+        <Button
           onClick={handlePredict}
           colorScheme="blue"
           size="lg"
         >
           Run Prediction ({interval})
-        </Button> */}
+        </Button>
         {error && (
           <Box color="red.600" p={3} bg="red.50" borderRadius="md">
             {error}
@@ -378,10 +379,19 @@ useEffect(() => {
                         
                         <Table.Row key={idx}>
                           <Table.Cell textAlign={"center"} fontWeight={"bold"} fontSize={"16px"}>Buy</Table.Cell>
-                          <Table.Cell textAlign={"center"}>{openPrice && currentPrice && pip ? (Number(currentPrice) + 1).toFixed(0) : 0}</Table.Cell>
-                          <Table.Cell textAlign={"center"}>{openPrice && currentPrice && pip ? (data.high + (Number(openPrice) - data.open)).toFixed(0) : 0}</Table.Cell>
-                          <Table.Cell textAlign={"center"}>{openPrice && currentPrice && pip ? (data.low + (Number(openPrice) - data.open)).toFixed(0) : 0}</Table.Cell>
-                          <Table.Cell textAlign={"center"}>{openPrice && currentPrice && pip ? (Math.abs(((data.high + (Number(openPrice) - data.open))) - ((Number(currentPrice) + 1)))*100*Number(pip)).toFixed() : 0}</Table.Cell>
+                          <Table.Cell textAlign={"center"}>{ (Number(currentPrice)).toFixed(0)}</Table.Cell>
+                          <Table.Cell textAlign={"center"}>{ (data.high + (Number(openPrice) - data.open)).toFixed(0)}</Table.Cell>
+                          <Table.Cell textAlign={"center"}>{ (data.low + (Number(openPrice) - data.open)-5).toFixed(0)}</Table.Cell>
+                          <Table.Cell textAlign="center">
+                            {(() => {
+                              // Break down the calculation for clarity
+                              const adjustedHigh = data.high + (Number(openPrice) - data.open);
+                              const priceTarget = Number(currentPrice) + 1;
+                              const difference = adjustedHigh - priceTarget;
+                              const pips = Math.abs(difference) * 100 * Number(pip);
+                              return pips.toFixed(2);
+                            })()}
+                          </Table.Cell>
                         </Table.Row> 
                       ))
                     }
@@ -389,10 +399,20 @@ useEffect(() => {
                       predictions.prediction.map((data, idx) => (
                         <Table.Row key={idx}>
                           <Table.Cell textAlign={"center"} fontWeight={"bold"} fontSize={"16px"}>Sell</Table.Cell>
-                          <Table.Cell textAlign={"center"}>{openPrice && currentPrice && pip ? (Number(currentPrice) - 1).toFixed(0) : 0}</Table.Cell>
-                          <Table.Cell textAlign={"center"}>{openPrice && currentPrice && pip ? (data.low + (Number(openPrice) - data.open)).toFixed(0) : 0}</Table.Cell>
-                          <Table.Cell textAlign={"center"}>{openPrice && currentPrice && pip ? (data.high + (Number(openPrice) - data.open)).toFixed(0) : 0}</Table.Cell>
-                          <Table.Cell textAlign={"center"}>{openPrice && currentPrice && pip ? (Math.abs(((data.low + (Number(openPrice) - data.open))) - ((Number(currentPrice) - 1)))*100*Number(pip)).toFixed(0) : 0}</Table.Cell>
+                          <Table.Cell textAlign={"center"}>{ (Number(currentPrice)).toFixed(0)}</Table.Cell>
+                          <Table.Cell textAlign={"center"}>{ (data.low + (Number(openPrice) - data.open)).toFixed(0)}</Table.Cell>
+                          <Table.Cell textAlign={"center"}>{ (data.high + (Number(openPrice) - data.open) + 5).toFixed(0)}</Table.Cell>
+                          {/* <Table.Cell textAlign={"center"}>{ (Math.abs(((data.low + (Number(openPrice) - data.open))) - ((Number(currentPrice) - 1)))*100*Number(pip)).toFixed(0)}</Table.Cell> */}
+                          <Table.Cell textAlign="center">
+                            {(() => {
+                              // Break down the calculation for clarity
+                              const adjustedHigh = data.high + (Number(openPrice) - data.open);
+                              const priceTarget = Number(currentPrice) + 1;
+                              const difference = adjustedHigh - priceTarget;
+                              const pips = Math.abs(difference) * 100 * Number(pip);
+                              return pips.toFixed(2);
+                            })()}
+                          </Table.Cell>
                         </Table.Row> 
                       ))
                     }
@@ -405,13 +425,13 @@ useEffect(() => {
               <Box mt={'20px'} rounded={"7px"} shadow="3px 3px 15px 5px rgb(75, 75, 79)">
                 <Center>
                 <Heading bg={bg} color={color} rounded={"5px"} textAlign={'center'} my={"20px"} p={"10px"} fontSize={'24px'}>
-                  Calculate Trading Price Based on High - Low Deviation
+                  Calculate Trading Price Based on High - Low Deviation (only for terminal = 1d)
                 </Heading>
               </Center>
               <Center>
                 <HStack p={"10px"} gap={"10px"}>
                   <HStack>
-                    <label htmlFor="openPrice">High price</label>
+                    <label htmlFor="openPrice">Last High price</label>
                     <input
                       type='number'
                       value={highPrice}
@@ -421,7 +441,7 @@ useEffect(() => {
                     />
                   </HStack>
                   <HStack>
-                    <label htmlFor="currentPrice">- Low price</label>
+                    <label htmlFor="currentPrice">- Last Low price</label>
                     <input
                       type='number'
                       value={lowPrice}
@@ -431,12 +451,12 @@ useEffect(() => {
                     />
                   </HStack>
                   <HStack>
-                    <label htmlFor="currentPrice2">- Current Price</label>
+                    <label htmlFor="closePrice">- Last Close Price</label>
                     <input
                       type='number'
-                      value={currentPrice}
-                      onChange={(e)=>setCurrentPrice(Number(e.target.value))}
-                      id='currentPrice2'
+                      value={closePrice}
+                      onChange={(e)=>setClosePrice(Number(e.target.value))}
+                      id='closePrice'
                       step={"0.01"}
                       style={{border:'1px solid', padding:'10px', borderRadius:"5px"}}
                     />
@@ -456,15 +476,15 @@ useEffect(() => {
                   <Table.Body>
                     <Table.Row >
                       <Table.Cell textAlign={"center"} fontWeight={"bold"} fontSize={"16px"}>Buy</Table.Cell>
-                      <Table.Cell textAlign={"center"}>{flag ? (Number(currentPrice) + 1) : ('not trade')}</Table.Cell>
-                      <Table.Cell textAlign={"center"}>{flag ? (Number(currentPrice) + Number(10)) : ('not trade')}</Table.Cell>
-                      <Table.Cell textAlign={"center"}>{flag ? (Number(currentPrice) - 10 + 1).toFixed(0) : 0}</Table.Cell>
+                      <Table.Cell textAlign={"center"}>{flag ? (Number(closePrice) + 10) : ('not trade')}</Table.Cell>
+                      <Table.Cell textAlign={"center"}>{flag ? (Number(closePrice) + 20) : ('not trade')}</Table.Cell>
+                      <Table.Cell textAlign={"center"}>{flag ? (Number(closePrice) - 19).toFixed(0) : 0}</Table.Cell>
                     </Table.Row> 
                     <Table.Row>
                       <Table.Cell textAlign={"center"} fontWeight={"bold"} fontSize={"16px"}>Sell</Table.Cell>
-                      <Table.Cell textAlign={"center"}>{flag ? (Number(currentPrice) - 1) : ('not trade')}</Table.Cell>
-                      <Table.Cell textAlign={"center"}>{flag ? (Number(currentPrice) -10 + 1) : ('not trade')}</Table.Cell>
-                      <Table.Cell textAlign={"center"}>{flag ? (Number(currentPrice) + 10) : ('not trade')}</Table.Cell>
+                      <Table.Cell textAlign={"center"}>{flag ? (Number(closePrice) - 10 + 1) : ('not trade')}</Table.Cell>
+                      <Table.Cell textAlign={"center"}>{flag ? (Number(closePrice) - 19) : ('not trade')}</Table.Cell>
+                      <Table.Cell textAlign={"center"}>{flag ? (Number(closePrice) + 20) : ('not trade')}</Table.Cell>
                     </Table.Row> 
                   </Table.Body>
                 </Table.Root>

@@ -68,7 +68,7 @@ def PredictedData_1wk_View(request):
 def predict_future_prices(request):
     try:
         steps_ahead = 1
-        sequence_length = 120
+        sequence_length = 60
         extended = True
         interval = request.data.get('interval', '1h')
 
