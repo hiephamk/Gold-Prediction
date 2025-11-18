@@ -1,3 +1,6 @@
+
+
+
 import { useEffect, useState, useMemo } from "react";
 import { Box,Center,Heading,Text,Spinner,SimpleGrid,Alert,Tabs,Image,Icon, VStack, Theme,} from "@chakra-ui/react";
 import axios from "axios";
@@ -22,7 +25,7 @@ interface OHLCPrediction {
 }
 
 interface FxActualPredictedDataProps {
-  interval: '15min'| '30min'| '45min' | '1h'| '4h'|'1day' | '1week';
+  interval: '15m'| '30m'| '45m' | '1h'| '4h'|'1d' | '1wk';
 }
 
 const FxActualPredictedData: React.FC<FxActualPredictedDataProps> = ({interval,}) => {
@@ -360,7 +363,7 @@ const FxActualPredictedData: React.FC<FxActualPredictedDataProps> = ({interval,}
         </Box>
       )}
       {!loading && hasData && (
-        <Tabs.Root defaultValue={"grid"}>
+        <Tabs.Root defaultValue={"list"}>
           <Tabs.List>
             <Tabs.Trigger value="grid">
               <Icon>
@@ -375,18 +378,18 @@ const FxActualPredictedData: React.FC<FxActualPredictedDataProps> = ({interval,}
           </Tabs.List>
               <Tabs.Content value="list">
                 <SimpleGrid gap={"10px"}>
-                  <ChartBox title="Open" series={buildSeries("Open")} options={buildOptions("Open")} />
+                  <ChartBox title="Close" series={buildSeries("Close")} options={buildOptions("Close")} />
                   <ChartBox title="High" series={buildSeries("High")} options={buildOptions("High")} />
                   <ChartBox title="Low" series={buildSeries("Low")} options={buildOptions("Low")} />
-                  <ChartBox title="Close" series={buildSeries("Close")} options={buildOptions("Close")} />
+                  <ChartBox title="Open" series={buildSeries("Open")} options={buildOptions("Open")} />
                 </SimpleGrid>
               </Tabs.Content>
             <Tabs.Content value="grid">
               <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
-                <ChartBox title="Open" series={buildSeries("Open")} options={buildOptions("Open")} />
+                <ChartBox title="Close" series={buildSeries("Close")} options={buildOptions("Close")} />
                 <ChartBox title="High" series={buildSeries("High")} options={buildOptions("High")} />
                 <ChartBox title="Low" series={buildSeries("Low")} options={buildOptions("Low")} />
-                <ChartBox title="Close" series={buildSeries("Close")} options={buildOptions("Close")} />
+                <ChartBox title="Open" series={buildSeries("Open")} options={buildOptions("Open")} />
               </SimpleGrid>
             </Tabs.Content>
         </Tabs.Root>

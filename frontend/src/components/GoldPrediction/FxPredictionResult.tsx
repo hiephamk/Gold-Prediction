@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Tabs, Box, Button, Spinner, Text, VStack,HStack, Table, Center, Grid, Heading } from '@chakra-ui/react';
 import Chart from "react-apexcharts";
 import { useColorModeValue } from '../ui/color-mode'
+import FxPredictionResult_Chart from './FxPredictionResult_Chart';
 
 interface Prediction {
   date: string;
@@ -179,6 +180,7 @@ useEffect(() => {
           const [open, high, low, close, confidence] = data.y;
           // const confidence = data.y
           const change = close - open;
+          const range = high - low
           const changePercent = ((change / open) * 100).toFixed(2);
           
           return `
@@ -191,6 +193,7 @@ useEffect(() => {
               <div><strong>Low:</strong> <span style="color: #EF403C;">$${low.toFixed(2)}</span></div>
               <div><strong>Close:</strong> $${close.toFixed(2)}</div>
               <div><strong>Confidence:</strong> $${confidence.toFixed(2)}</div>
+              <div><strong>Range:</strong> $${range.toFixed(2)}</div>
               <div style="margin-top: 4px; color: ${change >= 0 ? '#00B746' : '#EF403C'};">
                 <strong>Change:</strong> ${change >= 0 ? '+' : ''}$${change.toFixed(2)} (${changePercent}%)
               </div>
@@ -220,8 +223,8 @@ useEffect(() => {
   },[highPrice, lowPrice])
 
   return (
-    <Box w={"100%"} maxW="100%" my={"20px"}>
-      <VStack gap={"10px"} align="stretch">
+    <Box w={"100%"} maxW="100%">
+      <VStack align="stretch" gap={"10px"}>
         <Button
           onClick={handlePredict}
           colorScheme="blue"
@@ -245,7 +248,7 @@ useEffect(() => {
 
         {/* Results */}
         {predictions && !loading && (
-          <Box>
+          <VStack w={"100%"} justify={"space-between"}>
             {/* <Box border={"1px solid"} p={"10px"} rounded={"7px"} shadow="3px 3px 15px 5px rgb(75, 75, 79)">
               <Center>
                 <Heading fontWeight="semibold">
@@ -267,10 +270,10 @@ useEffect(() => {
                 </Box>
               </HStack>
             </Box> */}
-            <Tabs.Root defaultValue={"table"} shadow="3px 3px 15px 5px rgb(75, 75, 79)" rounded={"7px"}>
+            <Tabs.Root defaultValue={"chart"} shadow="3px 3px 15px 5px rgb(75, 75, 79)" rounded={"7px"} w={"100%"}>
               <Tabs.List rounded={"5px"}>
-                <Tabs.Trigger value='table'>Table Data</Tabs.Trigger>
                 <Tabs.Trigger value='chart'>Chart</Tabs.Trigger>
+                <Tabs.Trigger value='table'>Table Data</Tabs.Trigger>
               </Tabs.List>
               <Tabs.Content value='table'>
                 <Box rounded={"5px"} p={"5px"}>
@@ -285,9 +288,8 @@ useEffect(() => {
                         <Table.ColumnHeader fontWeight={"bold"} fontSize={"18px"}>High</Table.ColumnHeader>
                         <Table.ColumnHeader fontWeight={"bold"} fontSize={"18px"}>Low</Table.ColumnHeader>
                         <Table.ColumnHeader fontWeight={"bold"} fontSize={"18px"}>Close</Table.ColumnHeader>
-                        {/* <Table.ColumnHeader fontWeight={"bold"} fontSize={"18px"}>Change</Table.ColumnHeader> */}
                         <Table.ColumnHeader fontWeight={"bold"} fontSize={"18px"}>Range</Table.ColumnHeader>
-                        {/* <Table.ColumnHeader fontWeight={"bold"} fontSize={"18px"}>Confidence</Table.ColumnHeader> */}
+                        
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -299,9 +301,9 @@ useEffect(() => {
                             <Table.Cell>{data.high}</Table.Cell>
                             <Table.Cell>{data.low}</Table.Cell>
                             <Table.Cell>{data.close}</Table.Cell>
-                            {/* <Table.Cell>{data.change}</Table.Cell> */}
+                           
                             <Table.Cell>{data.price_range}</Table.Cell>
-                            {/* <Table.Cell>{data.confidence}%</Table.Cell> */}
+                            
                           </Table.Row>
                         ))
                       }
@@ -311,17 +313,12 @@ useEffect(() => {
               </Tabs.Content>
               <Tabs.Content value='chart'>
                 <Box my={"10px"}>
-                  <Center fontSize={"24px"} fontWeight={"bold"}>Gold Price Predictions For The Next {predictions.prediction.length} Time Intervals </Center>
-                  {series.length > 0 && !loading && (
-                    <Box borderTop={"1px solid"} w={"100%"}>
-                      <Chart options={options} series={series} type="candlestick" height={500} />
-                    </Box>
-                  )}
+                  <FxPredictionResult_Chart interval={interval}/>
                 </Box>
               </Tabs.Content>
             </Tabs.Root>
 
-            <Box mt={'20px'} rounded={"7px"} shadow="3px 3px 15px 5px rgb(75, 75, 79)">
+            {/* <Box w={"100%"} rounded={"7px"} shadow="3px 3px 15px 5px rgb(75, 75, 79)">
               <Center>
                 <Heading bg={bg} color={color} rounded={"5px"} textAlign={'center'} my={"20px"} p={"10px"} fontSize={'24px'}>
                   Calculate Trading Price Based on Predictions
@@ -379,12 +376,11 @@ useEffect(() => {
                         
                         <Table.Row key={idx}>
                           <Table.Cell textAlign={"center"} fontWeight={"bold"} fontSize={"16px"}>Buy</Table.Cell>
-                          <Table.Cell textAlign={"center"}>{ (Number(currentPrice)).toFixed(0)}</Table.Cell>
-                          <Table.Cell textAlign={"center"}>{ (data.high + (Number(openPrice) - data.open)).toFixed(0)}</Table.Cell>
-                          <Table.Cell textAlign={"center"}>{ (data.low + (Number(openPrice) - data.open)-5).toFixed(0)}</Table.Cell>
+                          <Table.Cell textAlign={"center"}>{ (Number(currentPrice)-7).toFixed(0)}</Table.Cell>
+                          <Table.Cell textAlign={"center"}>{ (data.high -1).toFixed(0)}</Table.Cell>
+                          <Table.Cell textAlign={"center"}>{ (data.low ).toFixed(0)}</Table.Cell>
                           <Table.Cell textAlign="center">
                             {(() => {
-                              // Break down the calculation for clarity
                               const adjustedHigh = data.high + (Number(openPrice) - data.open);
                               const priceTarget = Number(currentPrice) + 1;
                               const difference = adjustedHigh - priceTarget;
@@ -402,10 +398,9 @@ useEffect(() => {
                           <Table.Cell textAlign={"center"}>{ (Number(currentPrice)).toFixed(0)}</Table.Cell>
                           <Table.Cell textAlign={"center"}>{ (data.low + (Number(openPrice) - data.open)).toFixed(0)}</Table.Cell>
                           <Table.Cell textAlign={"center"}>{ (data.high + (Number(openPrice) - data.open) + 5).toFixed(0)}</Table.Cell>
-                          {/* <Table.Cell textAlign={"center"}>{ (Math.abs(((data.low + (Number(openPrice) - data.open))) - ((Number(currentPrice) - 1)))*100*Number(pip)).toFixed(0)}</Table.Cell> */}
+                        
                           <Table.Cell textAlign="center">
                             {(() => {
-                              // Break down the calculation for clarity
                               const adjustedHigh = data.high + (Number(openPrice) - data.open);
                               const priceTarget = Number(currentPrice) + 1;
                               const difference = adjustedHigh - priceTarget;
@@ -420,9 +415,7 @@ useEffect(() => {
                 </Table.Root>
               </Box>
             </Box>
-              {/* Calculate price with high - low */}
-
-              <Box mt={'20px'} rounded={"7px"} shadow="3px 3px 15px 5px rgb(75, 75, 79)">
+            <Box w={"100%"} rounded={"7px"} shadow="3px 3px 15px 5px rgb(75, 75, 79)">
                 <Center>
                 <Heading bg={bg} color={color} rounded={"5px"} textAlign={'center'} my={"20px"} p={"10px"} fontSize={'24px'}>
                   Calculate Trading Price Based on High - Low Deviation (only for terminal = 1d)
@@ -488,9 +481,9 @@ useEffect(() => {
                     </Table.Row> 
                   </Table.Body>
                 </Table.Root>
-              </Box>
-            </Box>
-          </Box>
+              // </Box>
+            </Box> */}
+          </VStack>
         )}
       </VStack>
     </Box>

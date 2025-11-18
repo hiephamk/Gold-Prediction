@@ -203,7 +203,7 @@ const GoldActualData: React.FC<Props> = ({ interval }) => {
       <Box my={"10px"}>
         {series.length > 0 && !loading && (
           <Box  w={"100%"} pr={"30px"}>
-            <Chart options={options} series={series} type="candlestick" height={"350px"}/>
+            <Chart options={options} series={series} type="candlestick"/>
           </Box>
         )}
       </Box>

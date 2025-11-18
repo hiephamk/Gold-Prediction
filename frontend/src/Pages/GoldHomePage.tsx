@@ -1,6 +1,6 @@
 import { useState, } from 'react';
 import FxPredictionResult from '../components/GoldPrediction/FxPredictionResult'
-import { Box, Button, Center, Heading, HStack, VStack } from '@chakra-ui/react'
+import { Box, Button, Center, Container, Heading, HStack, Stack, VStack, Wrap, WrapItem } from '@chakra-ui/react'
 import FxActualPredictedData from '../components/GoldPrediction/FxActualPredictedData';
 import GoldActualData from '../components/GoldPrediction/GoldActualData';
 import FxPredictionResult_Chart from '../components/GoldPrediction/FxPredictionResult_Chart';
@@ -26,10 +26,9 @@ const GoldHomePage: React.FC = () => {
   }
   
   return (
-    <Box>
-      <Center>
+    <VStack w={'100vw'}>
+      <Center mb={"20px"}>
         <VStack>
-          {/* <Heading my={"20px"} fontSize="36px" fontWeight="bold">Gold Price Prediction</Heading> */}
           <HStack shadow="3px 3px 15px 5px rgb(75, 75, 79)" p={"10px"} rounded={"5px"} mt={'10px'} w={"100%"}>
             <form>
               <label>Prediction Interval</label>
@@ -50,12 +49,18 @@ const GoldHomePage: React.FC = () => {
           </HStack>
         </VStack>
       </Center>
-      <HStack h={"fit-content"}>
-        <Box w={"100%"}>
+      <Stack h={"fit-content"} gap={'10px'} justify={"center"} wrap={"wrap"} flexDirection={"row"}>
+        <Box w={"1000px"} shadow="3px 3px 15px 5px rgb(75, 75, 79)" rounded={"7px"}>
           <FxPredictionResult interval={interval}/>
         </Box>
-      </HStack>
-    </Box>
+        <Box w={"1000px"} shadow="3px 3px 15px 5px rgb(75, 75, 79)" rounded={"7px"}>
+          <FxActualPredictedData interval={interval}/>
+        </Box>
+          <Box w={"100%"} rounded={"7px"} shadow="3px 3px 15px 5px rgb(75, 75, 79)">
+            <PriceDeviation interval={interval}/>
+          </Box>
+      </Stack>
+    </VStack>
   )
 }
 

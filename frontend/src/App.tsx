@@ -11,7 +11,7 @@ function App() {
     <Routers>
       <Routes>
         <Route path='/' element={<DashBoard/>}>
-          <Route index element={<GoldHomePage/>}/>
+          <Route index element={<GoldAnalyticPage/>}/>
           <Route path='/gold/prediction' element={<GoldHomePage/>}/>
           {/* <Route path='/gold/analytics' element={<GoldAnalyticPage/>}/> */}
           <Route path='/gold/analytics' element={<GoldAnalyticPage/>}/>

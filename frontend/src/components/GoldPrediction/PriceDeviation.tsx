@@ -256,6 +256,85 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
         </Grid>
       </Box>
 
+      
+      {/* Close Deviations Chart */}
+      <Box mb={6} p={4} borderWidth={1} borderRadius="md">
+        <Text fontSize="lg" fontWeight="semibold" mb={4}>
+          Close Price Deviations (Last 20)
+        </Text>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={closeChartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="date" 
+              angle={-45} 
+              textAnchor="end" 
+              height={100}
+              fontSize={11}
+            />
+            <YAxis fontSize={12} />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            <Bar dataKey="deviation" fill="#8884d8" name="Absolute Deviation">
+              {closeChartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.rawDeviation >= 0 ? "#82ca9d" : "#ff7979"} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </Box>
+      {/* High Deviations Chart */}
+      <Box mb={6} p={4} borderWidth={1} borderRadius="md">
+        <Text fontSize="lg" fontWeight="semibold" mb={4}>
+          High Price Deviations (Last 20)
+        </Text>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={highChartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="date" 
+              angle={-45} 
+              textAnchor="end" 
+              height={100}
+              fontSize={11}
+            />
+            <YAxis fontSize={12} />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            <Bar dataKey="deviation" fill="#8884d8" name="Absolute Deviation">
+              {highChartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.rawDeviation >= 0 ? "#82ca9d" : "#ff7979"} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </Box>
+      {/* Low Deviations Chart */}
+      <Box mb={6} p={4} borderWidth={1} borderRadius="md">
+        <Text fontSize="lg" fontWeight="semibold" mb={4}>
+          Low Price Deviations (Last 20)
+        </Text>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={lowChartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="date" 
+              angle={-45} 
+              textAnchor="end" 
+              height={100}
+              fontSize={11}
+            />
+            <YAxis fontSize={12} />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            <Bar dataKey="deviation" fill="#8884d8" name="Absolute Deviation">
+              {lowChartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.rawDeviation >= 0 ? "#82ca9d" : "#ff7979"} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </Box>
       {/* Open Deviations Chart */}
       <Box mb={6} p={4} borderWidth={1} borderRadius="md">
         <Text fontSize="lg" fontWeight="semibold" mb={4}>
@@ -283,86 +362,6 @@ const PriceDeviation: React.FC<GoleIntervalProp> = ({interval}) => {
         </ResponsiveContainer>
       </Box>
 
-      {/* High Deviations Chart */}
-      <Box mb={6} p={4} borderWidth={1} borderRadius="md">
-        <Text fontSize="lg" fontWeight="semibold" mb={4}>
-          High Price Deviations (Last 20)
-        </Text>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={highChartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
-              angle={-45} 
-              textAnchor="end" 
-              height={100}
-              fontSize={11}
-            />
-            <YAxis fontSize={12} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Bar dataKey="deviation" fill="#8884d8" name="Absolute Deviation">
-              {highChartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.rawDeviation >= 0 ? "#82ca9d" : "#ff7979"} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </Box>
-
-      {/* Low Deviations Chart */}
-      <Box mb={6} p={4} borderWidth={1} borderRadius="md">
-        <Text fontSize="lg" fontWeight="semibold" mb={4}>
-          Low Price Deviations (Last 20)
-        </Text>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={lowChartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
-              angle={-45} 
-              textAnchor="end" 
-              height={100}
-              fontSize={11}
-            />
-            <YAxis fontSize={12} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Bar dataKey="deviation" fill="#8884d8" name="Absolute Deviation">
-              {lowChartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.rawDeviation >= 0 ? "#82ca9d" : "#ff7979"} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </Box>
-
-      {/* Close Deviations Chart */}
-      <Box mb={6} p={4} borderWidth={1} borderRadius="md">
-        <Text fontSize="lg" fontWeight="semibold" mb={4}>
-          Close Price Deviations (Last 20)
-        </Text>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={closeChartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
-              angle={-45} 
-              textAnchor="end" 
-              height={100}
-              fontSize={11}
-            />
-            <YAxis fontSize={12} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Bar dataKey="deviation" fill="#8884d8" name="Absolute Deviation">
-              {closeChartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.rawDeviation >= 0 ? "#82ca9d" : "#ff7979"} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </Box>
     </Box>
   );
 }

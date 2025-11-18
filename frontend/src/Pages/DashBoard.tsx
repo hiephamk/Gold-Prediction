@@ -30,7 +30,7 @@ const DashBoard: React.FC = () => {
   };
 
   return (
-    <Container w={"1100px"}>
+    <Box w={"100vw"} p={"10px"}>
       <VStack gap={'10px'}>
         <Box w={'100%'}><NavBar/></Box>
         <Box>
@@ -128,7 +128,7 @@ const DashBoard: React.FC = () => {
           <Footer/>
         </Box>
       </VStack>
-    </Container>
+    </Box>
   );
 };
 
